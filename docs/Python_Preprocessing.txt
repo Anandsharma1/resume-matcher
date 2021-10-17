@@ -1,0 +1,219 @@
+To Do (fix below initial unigrams from mobile resumes)
+d.head()
+Out[158]: 
+                #  $  %   &  '  ...   year  york  yum  z/services  ~16m
+Resume 1.docx   0  0  0   0  0  ...      3     0    0           0     0
+Resume 10.docx  0  0  0   3  0  ...     11     1    0           1     0
+Resume 2.docx   0  0  0  11  1  ...      5     0    1           0     0
+Resume 3.docx   0  0  0   1  0  ...      6     0    0           0     0
+Resume 4.docx   3  0  0   3  0  ...      1     0    0           0
+
+
+Preprocessing
+
+1. convert the encoding to ASCII, replacing any non-translatable characters
+import unicodedata
+unicodedata.normalize('NFKD', word).encode('ascii', 'ignore').decode('utf-8', 'ignore')
+
+u'a?ä'.encode('ascii', 'ignore')
+'a'
+
+It is sometimes desirable to remove accents from characters and print the base form. This can be accomplished with
+
+>>> import unicodedata
+>>> unicodedata.normalize('NFKD', u'a?ä').encode('ascii', 'ignore')
+'aa'
+
+2. Split text into sentences
+import nltk
+sentences = nltk.sent_tokenize(text)
+
+
+old
+---
+!pip install pypdf2
+from PyPDF2 import PdfFileReader
+
+!pip install python-docx
+
+new
+---
+!pip install docx2txt
+import docx2txt
+text = docx2txt.process('..\\Resumes\\SujitPurkayasthaDas-Resume.docx')
+
+text is of type str
+
+!pip install --user pdfminer.six
+sys.path.append('C:\\Users\\105042\\AppData\\Roaming\\Python\\Python36\\site-packages')
+run C:\\Users\\105042\\AppData\\Roaming\\Python\\Python36\\Scripts\\pdf2txt.py -o text.txt Jagadesh_Rachakonda.pdf
+
+The text.txt can then be read as:
+with open('text.txt', 'r') as f:
+    data = f.readlines()
+
+data is of type list
+
+data[0:5]
+Out[109]: 
+['JAGADESH RACHAKONDA \n',
+ '\n',
+ ' 309-825-9873 \n',
+ ' jagadesh.rachakonda@gmail.com \n',
+ '\n']
+
+data1 = ''.join(data)
+data1
+Out[111]: 'JAGADESH RACHAKONDA \n\n 309-825-9873 \n jagadesh.rachakonda@gmail.com \n\n \n\n \n\nSUMMARY \n\nExperienced  Business  Intelligence  solutions  architect.  Worked  with  high  performance  teams  developing  and \nimplementing state of the art data warehouse applications.
+
+data is of type str
+
+OR
+f = open('text.txt', 'r')
+data = f.read()
+
+data is of type str
+
+data1 = unicodedata.normalize('NFKD', data).encode('ascii', 'ignore')
+data1 = data1.lower()
+data1 = [nltk.WordNetLemmatizer().lemmatize(word) for word in nltk.word_tokenize(data1)]
+data1 = ' '.join(data1)
+
+# nltk.download('stopwords')
+from nltk.corpus import stopwords
+stop = stopwords.words('english')
+data1 = [word for word in nltk.word_tokenize(data1) if word not in stop]
+data1 = ' '.join(data1)
+
+
+sents = data1.split('\n')
+sents1 = [sent.strip() for sent in sents if sent.strip() != ''] #strip white spaces from beginnning and ending and remove empty strings
+
+# now how to tokenize from list of strings
+
+
+s = 'It is sometimes desirable to remove accents from characters and print the base form.'
+tokens = [token for token in s.split(' ') if token != '']
+list(ngrams(tokens, 5))
+Out[247]: 
+[('It', 'is', 'sometimes', 'desirable', 'to'),
+ ('is', 'sometimes', 'desirable', 'to', 'remove'),
+ ('sometimes', 'desirable', 'to', 'remove', 'accents'),
+ ('desirable', 'to', 'remove', 'accents', 'from'),
+ ('to', 'remove', 'accents', 'from', 'characters'),
+ ('remove', 'accents', 'from', 'characters', 'and'),
+ ('accents', 'from', 'characters', 'and', 'print'),
+ ('from', 'characters', 'and', 'print', 'the'),
+ ('characters', 'and', 'print', 'the', 'base'),
+ ('and', 'print', 'the', 'base', 'form.')]
+
+s = 'It is sometimes desirable to remove accents from characters and print the base form, hope is desirable'
+tokens = [token for token in s.split(' ') if token != '']
+Counter(ngrams(tokens, 1))
+Counter({('It',): 1,
+         ('is',): 2,
+         ('sometimes',): 1,
+         ('desirable',): 2,
+         ('to',): 1,
+         ('remove',): 1,
+         ('accents',): 1,
+         ('from',): 1,
+         ('characters',): 1,
+         ('and',): 1,
+         ('print',): 1,
+         ('the',): 1,
+         ('base',): 1,
+         ('form,',): 1,
+         ('hope',): 1})
+
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+s = 'It is sometimes desirable to remove accents from characters and print the base form. This can be accomplished with test. Hope is there!'
+s1 = 'I do not know what I am doing'
+vectorizer = CountVectorizer(lowercase=True, stop_words="english", ngram_range=(1,5))
+m = vectorizer.fit_transform([s, s1])
+df = pd.DataFrame(m.toarray(), columns = vectorizer.get_feature_names())
+print(df)
+
+print(df)
+   accents  accents characters    ...      test  test hope
+0        1                   1    ...         1          1
+1        0                   0    ...         0          0
+
+[2 rows x 43 columns]
+
+print(df.iloc[:, 0:10])
+
+df.to_csv('df.csv')
+
+Some of the column names produced incorrectly
+base form accomplished test
+base form accomplished test hope
+
+
+run cosineSimRankResume.py
+dtm = getCosSimRankResume('..\\MobileSolutionArchitect_Job', '..\\MobileSolutionArchitect_Resumes')
+
+import numpy as np
+
+P, D, Q = np.linalg.svd(dtm, full_matrices = False)
+
+dtm.shape
+Out[13]: (11, 35447)
+
+print(P.shape)
+(11, 11)
+
+print(D.shape)
+(11,)
+
+print(Q.shape)
+(11, 35447)
+
+var = (D**2)/sum(D**2)
+
+np.cumsum(var)
+Out[21]: 
+array([0.14876471, 0.24284799, 0.33221369, 0.42100027, 0.50876701,
+       0.59528262, 0.68045446, 0.76298226, 0.84483361, 0.92413553,
+       1.        ])
+
+np.where(np.cumsum(var) >= 0.90)[0]
+Out[23]: array([ 9, 10], dtype=int64)
+
+np.argwhere(np.cumsum(var) >= 0.90)[0]
+Out[27]: array([9], dtype=int64
+
+
+np.where(np.cumsum(var) >= 0.90)[0][0]
+9
+
+from sklearn.decomposition import TruncatedSVD
+
+svd = TruncatedSVD(n_components=2)
+
+svd = TruncatedSVD(n_components=9)
+
+svd.fit(dtm)
+Out[54]: 
+TruncatedSVD(algorithm='randomized', n_components=9, n_iter=5,
+       random_state=None, tol=0.0)
+
+result = svd.transform(dtm)
+
+result.shape
+Out[56]: (11, 9)
+
+import pandas as pd
+p = pd.DataFrame(result, index = dtm.index.values)
+cosine_similarity(p)[0, 1:]
+
+
+cosScores = [np.asscalar(cosine_similarity([result[0]], [result[x]])) for x in range(1, result.shape[0])]
+
+
+
+run rankResumeForJob.py -j ..\\MobileSolutionArchitect_Job -r ..\\MobileSolutionArchitect_Resumes
+
+run rankResumeForJob.py -j ..\\Job_Train -r ..\\Resumes_Train
+

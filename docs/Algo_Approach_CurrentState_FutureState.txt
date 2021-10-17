@@ -1,0 +1,19 @@
+Current State:
+1. Convert job requirement and corresponding resumes into vector space model with required preprocessing and tokenization so as to converted unstructured text into a form that can be used to apply statistical technique. The tokens considered are from unigram to pentagram and frequency of term is represented by term frequency-inverse document frequency (TFIDF). TFIDF measure allows the selection of discriminatory terms
+
+2. Perform Latent Semantic Indexing (LSI) on vector space model so as to enhance semantic relationship between documents. This is accomplished using Singular Value Decomposition (SVD) that reduces dimension of the vector space model and thereby reducing noise which ultimately improves the semantic relationship between documents
+
+3. With altered vector space model, determine cosine similarity between job requirement and each resume with higher value indicating better match between job requirement and resume
+
+4. Perform the first step again but this time consider only unigrams and frequency of term is represented by simple count of occurrence
+
+5. Perform k-means clustering on resumes. K-means clustering is an unsupervised learning technique that partitions resumes into different clusters. Silhouette technique was used to determine optimal number of clusters
+
+6. Feed the new vector space model along with the cluster information to reliefF algorithm to assign term weight. This is a technique to choose the features that can be most distinguished between clusters.
+
+7. The count of term and its weight are multiplied to get cluster based ranking for each resume
+
+8. Product of cosine similarity score and cluster based ranking determines the final ranking of resume. Thus, step 1 - 3 determines how similar a resume is with job requirement and step 4 - 7 ranks resumes based on how frequently a term appears in the resume and its importance
+
+Future Enhancements:
+1. Perform matching between job requirement and resumes using a siamese adaptation of convolutional neural network (CNN). This will need extensive set of resumes and job requirements to determine optimal weights and biases for the gradient loss function of the neural network. This will be accomplished using TensorFlow library of Python for deep learning
